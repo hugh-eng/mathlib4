@@ -88,6 +88,60 @@ lemma mapRangeRingHom_comp_mapDomainRingHom (f : R →+* S) (g : M →* N) :
 
 end MonoidAlgebra
 
+namespace Equiv
+variable [Semiring R] [Mul M] [Mul N]
+
+/-- Isomorphic monoids have isomorphic monoid algebras. -/
+@[to_additive (dont_translate := R) (attr := simps apply symm_apply)
+/-- Isomorphic monoids have isomorphic monoid algebras. -/]
+def monoidAlgebraCongrRight (e : M ≃ N) : MonoidAlgebra R M ≃+ MonoidAlgebra R N where
+  toFun x := x.mapDomain e
+  invFun x := x.mapDomain e.symm
+  left_inv x := by ext; simp
+  right_inv x := by ext; simp
+  map_add' x y := by ext; simp
+
+end Equiv
+
+namespace AddEquiv
+variable [Semiring R] [Semiring S] [Mul M]
+
+/-- Additively isomorphic rings have additively isomorphic monoid algebras. -/
+@[to_additive (dont_translate := R S) (attr := simps)
+/-- Additively isomorphic rings have additively isomorphic additive monoid algebras. -/]
+def monoidAlgebraCongrLeft (e : R ≃+ S) : MonoidAlgebra R M ≃+ MonoidAlgebra S M where
+  toFun x := .mapRange e e.map_zero x
+  invFun x := .mapRange e.symm e.symm.map_zero x
+  left_inv x := by ext; simp
+  right_inv x := by ext; simp
+  map_add' x y := by ext; simp
+
+end AddEquiv
+
+namespace MulEquiv
+variable [Semiring R] [Monoid M] [Monoid N]
+
+/-- Isomorphic monoids have isomorphic additive monoid algebras. -/
+@[to_additive (dont_translate := R) (attr := simps! apply symm_apply)
+/-- Isomorphic monoids have isomorphic monoid algebras. -/]
+def monoidAlgebraCongrRight (e : M ≃* N) : MonoidAlgebra R M ≃+* MonoidAlgebra R N :=
+  .ofRingHom (MonoidAlgebra.mapDomainRingHom R e) (MonoidAlgebra.mapDomainRingHom R e.symm)
+    (by apply MonoidAlgebra.ringHom_ext <;> simp) (by apply MonoidAlgebra.ringHom_ext <;> simp)
+
+end MulEquiv
+
+namespace RingEquiv
+variable [Semiring R] [Semiring S] [Monoid M]
+
+/-- Isomorphic rings have isomorphic additive monoid algebras. -/
+@[to_additive (dont_translate := R S) (attr := simps! apply symm_apply)
+/-- Isomorphic rings have isomorphic monoid algebras. -/]
+def monoidAlgebraCongrLeft (e : R ≃+* S) : MonoidAlgebra R M ≃+* MonoidAlgebra S M :=
+  .ofRingHom (MonoidAlgebra.mapRangeRingHom M e) (MonoidAlgebra.mapRangeRingHom M e.symm)
+    (by apply MonoidAlgebra.ringHom_ext <;> simp) (by apply MonoidAlgebra.ringHom_ext <;> simp)
+
+end RingEquiv
+
 /-!
 #### Conversions between `AddMonoidAlgebra` and `MonoidAlgebra`
 
@@ -113,9 +167,9 @@ variable (k G) in
 /-- The equivalence between `MonoidAlgebra` and `AddMonoidAlgebra` in terms of `Additive` -/
 protected def MonoidAlgebra.toAdditive [Semiring k] [Mul G] :
     MonoidAlgebra k G ≃+* AddMonoidAlgebra k (Additive G) where
-  __ := Finsupp.domCongr Additive.ofMul
-  toFun := equivMapDomain Additive.ofMul
-  map_mul' x y := by
-    repeat' rw [equivMapDomain_eq_mapDomain (M := k)]
-    dsimp [Additive.ofMul]
-    convert MonoidAlgebra.mapDomain_mul (MulHom.id G) x y
+  toFun x := x.mapDomain .ofMul
+  invFun x := x.mapDomain Additive.toMul
+  left_inv x := by ext; simp
+  right_inv x := by ext; simp
+  map_add' x y := Finsupp.mapDomain_add ..
+  map_mul' := MonoidAlgebra.mapDomain_mul (MulHom.id G)
