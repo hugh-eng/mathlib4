@@ -36,10 +36,10 @@ open LinearMap TensorProduct
 
 variable {R : Type*} [CommSemiring R]
     (S : Type*) [CommSemiring S] [Algebra R S]
-    (M : Type*) [AddCommMonoid M] [Module R M] -- [Module S M] [IsScalarTower R S M]
+    (M : Type*) [AddCommMonoid M] [Module R M]
     {N : Type*} [AddCommMonoid N] [Module R N]
     {ι : Type*} [DecidableEq ι]
-    {P : Type*} [AddCommMonoid P] [Module R P] -- [Module S P] [IsScalarTower R S P]
+    {P : Type*} [AddCommMonoid P] [Module R P]
 
 section LinearMapRight
 
