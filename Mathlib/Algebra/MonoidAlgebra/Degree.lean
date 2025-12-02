@@ -243,20 +243,20 @@ theorem supDegree_sub_le {f g : R'[A]} :
 
 theorem supDegree_sum_le {ι} {s : Finset ι} {f : ι → R[A]} :
     (∑ i ∈ s, f i).supDegree D ≤ s.sup (fun i => (f i).supDegree D) := by
-  classical
-  exact (Finset.sup_mono Finsupp.support_finset_sum).trans_eq (Finset.sup_biUnion _ _)
+  classical simp only [supDegree, coeff_sum]; grw [Finsupp.support_finset_sum, Finset.sup_biUnion]
 
 theorem supDegree_single_ne_zero (a : A) {r : R} (hr : r ≠ 0) :
     (single a r).supDegree D = D a := by
-  rw [supDegree, Finsupp.support_single_ne_zero a hr, Finset.sup_singleton]
+  simp only [supDegree, coeff_single]
+  grw [Finsupp.support_single_ne_zero _ hr, Finset.sup_singleton]
 
 open Classical in
 theorem supDegree_single (a : A) (r : R) :
     (single a r).supDegree D = if r = 0 then ⊥ else D a := by
   split_ifs with hr <;> simp [supDegree_single_ne_zero, hr]
 
-theorem apply_eq_zero_of_not_le_supDegree {p : R[A]} {a : A} (hlt : ¬ D a ≤ p.supDegree D) :
-    p a = 0 := by
+theorem coeff_eq_zero_of_not_le_supDegree {p : R[A]} {a : A} (hlt : ¬ D a ≤ p.supDegree D) :
+    p.coeff a = 0 := by
   contrapose! hlt
   exact Finset.le_sup (Finsupp.mem_support_iff.2 hlt)
 
@@ -288,7 +288,7 @@ variable [Add B]
 theorem supDegree_mul_le (hadd : ∀ a1 a2, D (a1 + a2) = D a1 + D a2)
     [AddLeftMono B] [AddRightMono B] :
     (p * q).supDegree D ≤ p.supDegree D + q.supDegree D :=
-  sup_support_mul_le (fun {_ _} => (hadd _ _).le) p q
+  sup_support_coeff_mul_le (fun {_ _} => (hadd _ _).le) p q
 
 theorem supDegree_prod_le {R A B : Type*} [CommSemiring R] [AddCommMonoid A] [AddCommMonoid B]
     [SemilatticeSup B] [OrderBot B]
@@ -363,7 +363,7 @@ theorem monic_one [AddZeroClass A] (hD : D.Injective) : (1 : R[A]).Monic D := by
 
 variable (D) in
 lemma exists_supDegree_mem_support (hp : p ≠ 0) : ∃ a ∈ p.coeff.support, p.supDegree D = D a :=
-  Finset.exists_mem_eq_sup _ (Finsupp.support_nonempty_iff.mpr hp) D
+  Finset.exists_mem_eq_sup _ (by simpa [Finsupp.support_nonempty_iff]) D
 
 variable (D) in
 lemma supDegree_mem_range (hp : p ≠ 0) : p.supDegree D ∈ Set.range D := by
@@ -385,8 +385,7 @@ lemma supDegree_add_eq_left (h : q.supDegree D < p.supDegree D) :
   obtain ⟨a, ha, he⟩ := exists_supDegree_mem_support D (ne_zero_of_not_supDegree_le h.not_ge)
   rw [he] at h ⊢
   apply Finset.le_sup
-  rw [mem_support_iff, coeff_add, apply_eq_zero_of_not_le_supDegree h.not_ge, add_zero]
-  exact mem_support_iff.mp ha
+  simpa [coeff_eq_zero_of_not_le_supDegree h.not_ge] using ha
 
 lemma supDegree_add_eq_right (h : p.supDegree D < q.supDegree D) :
     (p + q).supDegree D = q.supDegree D := by
@@ -395,8 +394,8 @@ lemma supDegree_add_eq_right (h : p.supDegree D < q.supDegree D) :
 lemma leadingCoeff_add_eq_left (h : q.supDegree D < p.supDegree D) :
     (p + q).leadingCoeff D = p.leadingCoeff D := by
   obtain ⟨a, he⟩ := supDegree_mem_range D (ne_zero_of_not_supDegree_le h.not_ge)
-  rw [leadingCoeff, supDegree_add_eq_left h, coeff_add, ← leadingCoeff,
-    apply_eq_zero_of_not_le_supDegree (D := D), add_zero]
+  rw [leadingCoeff, supDegree_add_eq_left h, coeff_add, Finsupp.add_apply, ← leadingCoeff,
+    coeff_eq_zero_of_not_le_supDegree (D := D), add_zero]
   rw [← he, Function.apply_invFun_apply (f := D), he]; exact h.not_ge
 
 lemma leadingCoeff_add_eq_right (h : p.supDegree D < q.supDegree D) :
@@ -425,7 +424,7 @@ lemma supDegree_sub_lt_of_leadingCoeff_eq (hD : D.Injective) {R} [Ring R] {p q :
   · rw [hd, sup_idem]
   · rw [← sub_eq_zero, ← leadingCoeff_eq_zero hD, leadingCoeff] at he
     refine fun h => he ?_
-    rwa [h, coeff_sub, ← leadingCoeff, hd, ← leadingCoeff, sub_eq_zero]
+    rwa [h, coeff_sub, Finsupp.sub_apply, ← leadingCoeff, hd, ← leadingCoeff, sub_eq_zero]
 
 lemma supDegree_leadingCoeff_sum_eq
     (hi : i ∈ s) (hmax : ∀ j ∈ s, j ≠ i → (f j).supDegree D < (f i).supDegree D) :

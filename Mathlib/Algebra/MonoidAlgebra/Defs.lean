@@ -670,6 +670,15 @@ lemma ofCoeff_neg (x : M →₀ R) : ofCoeff (-x) = -ofCoeff x := rfl
 @[to_additive (attr := simp) (dont_translate := R)]
 lemma single_neg (m : M) (r : R) : single m (-r) = -single m r := by simp [single]
 
+@[to_additive (attr := simp) (dont_translate := R)]
+lemma coeff_sub (x y : MonoidAlgebra R M) : (x - y).coeff = x.coeff - y.coeff := rfl
+
+@[to_additive (attr := simp) (dont_translate := R)]
+lemma ofCoeff_sub (x y : M →₀ R) : ofCoeff (x - y) = ofCoeff x - ofCoeff y := rfl
+
+@[to_additive (attr := simp) (dont_translate := R)]
+lemma single_sub (m : M) (r s : R) : single m (r - s) = single m r - single m s := by simp [single]
+
 @[to_additive (dont_translate := R)]
 instance nonUnitalNonAssocRing [Mul M] : NonUnitalNonAssocRing (MonoidAlgebra R M) where
 
