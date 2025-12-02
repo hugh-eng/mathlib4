@@ -52,12 +52,15 @@ Common commit prefixes:
 ### 3. Push to Your Branch
 
 ```bash
-# If working on a fork
+# If working on a fork (most common)
 git push origin your-branch-name
 
-# If you have direct access (less common)
+# If you have direct write access to leanprover-community/mathlib4
+# (and your 'origin' points to the main repo)
 git push origin your-branch-name
 ```
+
+**Note**: Most contributors work from forks. The command is the same in both cases - `origin` refers to wherever you cloned from (your fork or the main repo).
 
 ### 4. Create a Pull Request (PR)
 
