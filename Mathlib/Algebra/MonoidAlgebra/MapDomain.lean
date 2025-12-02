@@ -142,8 +142,8 @@ variable [Semiring R] [Semiring S] [Semiring T] [Mul M]
 
 `Finsupp.mapRange` as an `AddEquiv`. -/]
 def monoidAlgebraCongrLeft (e : R ≃+ S) : MonoidAlgebra R M ≃+ MonoidAlgebra S M where
-  toFun x := .mapRange e e.map_zero x
-  invFun x := .mapRange e.symm e.symm.map_zero x
+  toFun x := .ofCoeff <| .mapRange e e.map_zero x.coeff
+  invFun x := .ofCoeff <| .mapRange e.symm e.symm.map_zero x.coeff
   left_inv x := by ext; simp
   right_inv x := by ext; simp
   map_add' x y := by ext; simp
@@ -231,9 +231,13 @@ variable (k G) in
 /-- The equivalence between `MonoidAlgebra` and `AddMonoidAlgebra` in terms of `Additive` -/
 protected def MonoidAlgebra.toAdditive [Semiring k] [Mul G] :
     MonoidAlgebra k G ≃+* AddMonoidAlgebra k (Additive G) where
-  toFun x := x.mapDomain .ofMul
-  invFun x := x.mapDomain Additive.toMul
+  toFun x := .ofCoeff <| x.coeff.mapDomain .ofMul
+  invFun x := .ofCoeff <| x.coeff.mapDomain Additive.toMul
   left_inv x := by ext; simp
   right_inv x := by ext; simp
-  map_add' x y := Finsupp.mapDomain_add ..
-  map_mul' := MonoidAlgebra.mapDomain_mul (MulHom.id G)
+  map_add' x y := by simp [Finsupp.mapDomain_add]
+  map_mul' x y := by
+    classical
+    ext
+    simp [MonoidAlgebra.coeff_mul, AddMonoidAlgebra.coeff_mul, Finsupp.sum_mapDomain_index, add_mul,
+      mul_add, ite_add_zero, Additive.ext_iff]
